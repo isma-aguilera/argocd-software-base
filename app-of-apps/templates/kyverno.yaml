@@ -22,62 +22,63 @@ spec:
           forceFailurePolicyIgnore:
             enabled: true
 
-        # Admission Controller
+        # Admission Controller (recursos reducidos para cluster local)
         admissionController:
           enabled: true
           replicas: {{ .Values.kyverno.replicaCount }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 512Mi
+              cpu: 300m
+              memory: 256Mi
 
-        # Background Controller
+        # Background Controller (recursos reducidos para cluster local)
         backgroundController:
           enabled: true
           replicas: {{ .Values.kyverno.replicaCount }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 512Mi
+              cpu: 300m
+              memory: 256Mi
 
-        # Cleanup Controller
+        # Cleanup Controller (recursos reducidos para cluster local)
         cleanupController:
           enabled: true
           replicas: {{ .Values.kyverno.replicaCount }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 512Mi
+              cpu: 300m
+              memory: 256Mi
 
-        # Reports Controller
+        # Reports Controller (recursos reducidos para cluster local)
         reportsController:
           enabled: true
           replicas: {{ .Values.kyverno.replicaCount }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 512Mi
+              cpu: 300m
+              memory: 256Mi
 
   destination:
-    server: https://kubernetes.default.svc
+    server: {{ .Values.clusterServer }}
     namespace: kyverno
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # Sync manual para control de despliegue
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true

@@ -32,6 +32,7 @@ spec:
           releaseName: software-base
           values: |
             clusterName: "{{.name}}"
+            clusterServer: "{{.server}}"
 
             versions:
               externalSecrets: "0.10.0"
@@ -41,7 +42,7 @@ spec:
               metricsServer: "3.12.1"
 
             goldilocks:
-              installVpa: true
+              installVpa: false
               replicaCount: 1
 
             kyverno:
@@ -53,10 +54,11 @@ spec:
         namespace: argocd
 
       syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-          allowEmpty: false
+        # Sync manual para control de despliegue
+        # automated:
+        #   prune: true
+        #   selfHeal: true
+        #   allowEmpty: false
         syncOptions:
           - CreateNamespace=true
           - PrunePropagationPolicy=foreground

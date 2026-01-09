@@ -17,37 +17,38 @@ spec:
     helm:
       releaseName: metrics-server
       values: |
-        # Args para EKS
+        # Args para cluster local (ajustado para desarrollo)
         args:
           - --kubelet-preferred-address-types=InternalIP
           - --kubelet-use-node-status-port
           - --metric-resolution=15s
+          - --kubelet-insecure-tls  # Para clusters locales sin certificados válidos
 
-        # Recursos
+        # Recursos reducidos para cluster local (2 CPU / 3 GB RAM)
         resources:
           requests:
-            cpu: 100m
-            memory: 200Mi
+            cpu: 50m
+            memory: 128Mi
           limits:
-            cpu: 1000m
-            memory: 1Gi
+            cpu: 300m
+            memory: 512Mi
 
-        # High availability
-        replicas: 2
+        # Single replica para cluster local
+        replicas: 1
 
-        # Pod disruption budget
+        # Pod disruption budget deshabilitado (no necesario con 1 replica)
         podDisruptionBudget:
-          enabled: true
-          minAvailable: 1
+          enabled: false
 
   destination:
-    server: https://kubernetes.default.svc
+    server: {{ .Values.clusterServer }}
     namespace: kube-system
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # Sync manual para control de despliegue
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     syncOptions:
       - CreateNamespace=true
     retry:

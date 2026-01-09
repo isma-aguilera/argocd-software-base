@@ -17,7 +17,7 @@ spec:
     helm:
       releaseName: goldilocks
       values: |
-        # Dashboard configuration
+        # Dashboard configuration (recursos reducidos para cluster local)
         dashboard:
           enabled: true
           replicaCount: {{ .Values.goldilocks.replicaCount }}
@@ -25,36 +25,37 @@ spec:
             type: ClusterIP
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 200m
+              memory: 256Mi
 
-        # Controller configuration
+        # Controller configuration (recursos reducidos para cluster local)
         controller:
           enabled: true
           replicaCount: {{ .Values.goldilocks.replicaCount }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 200m
+              memory: 256Mi
 
         # VPA (Vertical Pod Autoscaler)
         vpa:
           enabled: {{ .Values.goldilocks.installVpa }}
 
   destination:
-    server: https://kubernetes.default.svc
+    server: {{ .Values.clusterServer }}
     namespace: goldilocks
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # Sync manual para control de despliegue
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     syncOptions:
       - CreateNamespace=true
     retry:

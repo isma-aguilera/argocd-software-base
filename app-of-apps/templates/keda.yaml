@@ -25,36 +25,37 @@ spec:
           # annotations:
           #   eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT:role/ROLE_NAME"
 
-        # Operator configuration
+        # Operator configuration (recursos reducidos para cluster local)
         operator:
           replicaCount: 1
           resources:
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 1000Mi
+              cpu: 300m
+              memory: 256Mi
 
-        # Metrics server
+        # Metrics server (recursos reducidos para cluster local)
         metricsServer:
           replicaCount: 1
           resources:
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 1000m
-              memory: 1000Mi
+              cpu: 300m
+              memory: 256Mi
 
   destination:
-    server: https://kubernetes.default.svc
+    server: {{ .Values.clusterServer }}
     namespace: keda
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # Sync manual para control de despliegue
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
