@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: eks-software-base
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          argocd.argoproj.io/secret-type: cluster
+  template:
+    metadata:
+      name: '{{.name}}-platform'
+      labels:
+        cluster-name: '{{.name}}'
+        app-type: software-base
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: .
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/isma-aguilera/argocd-software-base.git
+        targetRevision: main
+        path: app-of-apps
+        helm:
+          releaseName: software-base
+          values: |
+            clusterName: "{{.name}}"
+
+            versions:
+              externalSecrets: "0.10.0"
+              goldilocks: "10.1.0"
+              keda: "2.17.1"
+              kyverno: "3.6.1"
+              metricsServer: "3.12.1"
+
+            goldilocks:
+              installVpa: true
+              replicaCount: 1
+
+            kyverno:
+              installPolicies: false
+              podSecurityStandard: "baseline"
+
+      destination:
+        server: '{{.server}}'
+        namespace: argocd
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+
+      # Health checks
+      ignoreDifferences:
+      - group: argoproj.io
+        kind: Application
+        jqPathExpressions:
+        - '.status'

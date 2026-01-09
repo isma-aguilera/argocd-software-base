@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.clusterName }}-keda
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+
+  source:
+    repoURL: https://kedacore.github.io/charts
+    targetRevision: {{ .Values.versions.keda }}
+    chart: keda
+    helm:
+      releaseName: keda
+      values: |
+        # ServiceAccount (sin IAM por ahora)
+        serviceAccount:
+          create: true
+          name: keda-operator
+          # TODO: Agregar annotation con IAM role ARN cuando esté listo
+          # annotations:
+          #   eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT:role/ROLE_NAME"
+
+        # Operator configuration
+        operator:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+
+        # Metrics server
+        metricsServer:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keda
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

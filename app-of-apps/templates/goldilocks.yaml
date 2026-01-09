@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.clusterName }}-goldilocks
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+
+  source:
+    repoURL: https://charts.fairwinds.com/stable
+    targetRevision: {{ .Values.versions.goldilocks }}
+    chart: goldilocks
+    helm:
+      releaseName: goldilocks
+      values: |
+        # Dashboard configuration
+        dashboard:
+          enabled: true
+          replicaCount: {{ .Values.goldilocks.replicaCount }}
+          service:
+            type: ClusterIP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        # Controller configuration
+        controller:
+          enabled: true
+          replicaCount: {{ .Values.goldilocks.replicaCount }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+        # VPA (Vertical Pod Autoscaler)
+        vpa:
+          enabled: {{ .Values.goldilocks.installVpa }}
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: goldilocks
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

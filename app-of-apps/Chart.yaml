@@ -1,0 +1,6 @@
+apiVersion: v2
+name: eks-software-base
+description: Base platform applications for EKS clusters (App of Apps)
+type: application
+version: 1.0.0
+appVersion: "1.0"

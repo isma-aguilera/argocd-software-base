@@ -1,0 +1,21 @@
+# Valores por defecto (serán sobrescritos por el ApplicationSet)
+clusterName: "default-cluster"
+
+# Versiones de los componentes
+versions:
+  externalSecrets: "0.10.0"
+  goldilocks: "10.1.0"
+  keda: "2.17.1"
+  kyverno: "3.6.1"
+  metricsServer: "3.12.1"
+
+# Configuración específica de Goldilocks
+goldilocks:
+  installVpa: true
+  replicaCount: 1
+
+# Configuración específica de Kyverno
+kyverno:
+  installPolicies: false
+  podSecurityStandard: "baseline"
+  replicaCount: 1
